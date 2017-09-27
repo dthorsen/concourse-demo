@@ -134,4 +134,4 @@ jobs:
       name: concourse-demo-master/release-name
       tag: concourse-demo-master/release-version
       globs:
-      - concourse-demo-bin/concourse-demo
+      - concourse-demo-bin/concourse-demo*
