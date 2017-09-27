@@ -1,0 +1,140 @@
+resource_types:
+- name: github-pull-request
+  type: docker-image
+  source:
+    repository: jtarchie/pr
+
+resources:
+- name: concourse-demo-pr
+  type: github-pull-request
+  source:
+    access_token: {{github-access-token}}
+    private_key: {{github-private-key}}
+    repo: dthorsen/concourse-demo
+    uri: git@github.com:dthorsen/concourse-demo
+    base: master
+
+- name: concourse-demo-master
+  type: git
+  source:
+    uri: git@github.com:dthorsen/concourse-demo
+    branch: master
+    private_key: {{github-private-key}}
+
+- name: concourse-demo-release
+  type: github-release
+  source:
+    owner: dthorsen
+    repository: concourse-demo
+    access_token: {{github-access-token}}
+
+jobs:
+- name: pr-unit-tests
+  plan:
+  - get: concourse-demo-pr
+    trigger: true
+    version: every
+  - put: concourse-demo-pr
+    params:
+      path: concourse-demo-pr
+      status: pending
+  - task: unit-tests
+    config:
+      image_resource:
+        type: docker-image
+        source:
+          repository: golang
+          tag: 1.9
+      inputs:
+        - name: concourse-demo-pr
+      platform: linux
+      params:
+        GOOS: linux
+      run:
+        path: concourse-demo-pr/ci/scripts/unit-test.sh
+    on_success:
+      put: concourse-demo-pr
+      params:
+        path: concourse-demo-pr
+        status: success
+    on_failure:
+      put: concourse-demo-pr
+      params:
+        path: concourse-demo-pr
+        status: failure
+
+- name: unit
+  plan:
+  - get: concourse-demo-master
+    trigger: true
+    version: every
+  - task: unit-tests
+    config:
+      image_resource:
+        type: docker-image
+        source:
+          repository: golang
+          tag: 1.9
+      inputs:
+        - name: concourse-demo-master
+      platform: linux
+      params:
+        GOOS: linux
+      run:
+        path: concourse-demo-master/ci/scripts/unit-test.sh
+
+- name: integration
+  plan:
+  - get: concourse-demo-master
+    trigger: true
+    version: every
+  - task: integration-tests
+    config:
+      image_resource:
+        type: docker-image
+        source:
+          repository: golang
+          tag: 1.9
+      inputs:
+        - name: concourse-demo-master
+      platform: linux
+      params:
+        GOOS: linux
+      run:
+        path: concourse-demo-master/ci/scripts/integration-test.sh
+
+- name: build
+  plan:
+  - get: concourse-demo-master
+    trigger: true
+    version: every
+    passed: [unit, integration]
+  - task: build
+    config:
+      image_resource:
+        type: docker-image
+        source:
+          repository: golang
+          tag: 1.9
+      inputs:
+        - name: concourse-demo-master
+      outputs:
+        - name: concourse-demo-release
+      platform: linux
+      params:
+        GOOS: linux
+      run:
+        path: concourse-demo-master/ci/scripts/build.sh
+
+- name: release
+  plan:
+  - get: concourse-demo-master
+    trigger: true
+    version: every
+    passed: [unit, integration, build]
+  - put: concourse-demo-release
+    params:
+      name: concourse-demo-master/release-name
+      tag: concourse-demo-master/release-version
+      globs:
+      - concourse-demo-master/concourse-demo
