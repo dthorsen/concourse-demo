@@ -106,7 +106,7 @@ jobs:
       run:
         path: concourse-demo-master/ci/scripts/integration-test.sh
 
-- name: build
+- name: build-and-release
   plan:
   - get: concourse-demo-master
     trigger: true
@@ -129,13 +129,6 @@ jobs:
         WORKDIR: concourse-demo-master
       run:
         path: concourse-demo-master/ci/scripts/build.sh
-
-- name: release
-  plan:
-  - get: concourse-demo-master
-    trigger: true
-    version: every
-    passed: [unit, integration, build]
   - put: concourse-demo-release
     params:
       name: concourse-demo-master/release-name
