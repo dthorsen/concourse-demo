@@ -1,4 +1,5 @@
 #!/bin/bash
 
 cd $WORKDIR
-go build -v -o ../concourse-demo-bin/concourse-demo
+GOOS=linux GOARCH=amd64 go build -v -o ../concourse-demo-bin/concourse-demo-linux-amd64
+GOOS=darwin GOARCH=amd64 go build -v -o ../concourse-demo-bin/concourse-demo-darwin-amd64
