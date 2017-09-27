@@ -81,6 +81,7 @@ jobs:
       platform: linux
       params:
         GOOS: linux
+        WORKDIR: concourse-demo-master
       run:
         path: concourse-demo-master/ci/scripts/unit-test.sh
 
@@ -101,6 +102,7 @@ jobs:
       platform: linux
       params:
         GOOS: linux
+        WORKDIR: concourse-demo-master
       run:
         path: concourse-demo-master/ci/scripts/integration-test.sh
 
@@ -124,6 +126,7 @@ jobs:
       platform: linux
       params:
         GOOS: linux
+        WORKDIR: concourse-demo-pr
       run:
         path: concourse-demo-master/ci/scripts/build.sh
 
