@@ -1,7 +1,4 @@
 #!/bin/bash
 
-pwd
-ls
-ls /
-
+cd $WORKDIR
 go test -v -run Unit

@@ -1,3 +1,4 @@
 #!/bin/bash
 
-go build -v -o /concourse-demo-master/concourse-demo
+cd $WORKDIR
+go build -v -o ../concourse-demo-bin/concourse-demo

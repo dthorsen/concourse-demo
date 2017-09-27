@@ -50,6 +50,7 @@ jobs:
       platform: linux
       params:
         GOOS: linux
+        WORKDIR: concourse-demo-pr
       run:
         path: concourse-demo-pr/ci/scripts/unit-test.sh
     on_success:
@@ -119,7 +120,7 @@ jobs:
       inputs:
         - name: concourse-demo-master
       outputs:
-        - name: concourse-demo-release
+        - name: concourse-demo-bin
       platform: linux
       params:
         GOOS: linux
@@ -137,4 +138,4 @@ jobs:
       name: concourse-demo-master/release-name
       tag: concourse-demo-master/release-version
       globs:
-      - concourse-demo-master/concourse-demo
+      - concourse-demo-bin/concourse-demo
