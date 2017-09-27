@@ -126,7 +126,7 @@ jobs:
       platform: linux
       params:
         GOOS: linux
-        WORKDIR: concourse-demo-pr
+        WORKDIR: concourse-demo-master
       run:
         path: concourse-demo-master/ci/scripts/build.sh
 
